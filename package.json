@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/iliveinspb/library-app/issues"
   },
-  "homepage": "https://github.com/iliveinspb/library-app#readme"
+  "homepage": "https://github.com/iliveinspb/library-app#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
 }
