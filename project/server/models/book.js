@@ -18,3 +18,5 @@ class Book {
     this.fileName = fileName;
   }
 }
+
+module.exports = Book;
