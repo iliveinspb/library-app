@@ -1,9 +1,9 @@
-const express = require('express');
-const router = express.Router();
+const express = require('express')
+const router = express.Router()
+const fileMulter = require('../middleware/file')
+const Book = require('../models/book')
 
-const Book = require('../models/book');
-
-const storage = require('../storage');
+const storage = require('../storage')
 
 //получаем весь массив
 router.get('/', (req, res) => {
@@ -106,6 +106,63 @@ router.delete('/:id', (req, res) => {
   }
 });
 
+//добавляем файл
+router.post('/:id/upload', 
+    fileMulter.single('book-file'),
+
+    (req, res) => {
+        const { books } = storage;
+        const { id } = req.params;
+        
+        
+        if (!req.file) {
+            res.status(400);
+            return res.json('Файл не загружен');
+        } 
+        
+        const {path} = req.file
+
+        const idx = books.findIndex((el) => el.id === id);
+        
+        if (idx !== -1) {
+            books[idx] = {
+            ...books[idx],
+            fileBook: path,
+            };
+
+
+
+        return res.json(books[idx])
+
+        } else {
+            res.status(404);
+            res.json('404 | книга не найдена');
+        }
+    }
+);
+
+//отдаем файл пользователю
+router.get('/:id/download', 
+
+    (req, res) => {
+        const { books } = storage;
+        const { id } = req.params;
+
+        const idx = books.findIndex((el) => el.id === id);
+
+        if (idx !== -1) {   
+            if (books[idx].fileBook){
+                res.download(books[idx].fileBook)
+            } else {
+                res.status(404);
+                res.json('404 | файл отсутствует');
+            }
+        } else {
+                res.status(404);
+                res.json('404 | книга не найдена');
+            }
+    }
+);
 
 
 module.exports = router;
