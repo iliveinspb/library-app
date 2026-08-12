@@ -1,0 +1,46 @@
+<%- include('./port/layout-start') %>
+
+<h1><%= book.title %></h1>
+
+<p><strong>Описание:</strong> <%= book.description %></p>
+<p><strong>Автор:</strong> <%= book.authors %></p>
+<p><strong>Избранное:</strong> <%= book.favorite %></p>
+
+<a href="/update/<%= book.id %>" class="btn btn-primary mb-3">
+    Редактировать
+</a>
+
+<h2>Загрузить файл</h2>
+
+<form
+    method="POST"
+    action="/api/books/<%= book.id %>/upload"
+    enctype="multipart/form-data"
+>
+    <div class="form-group">
+        <input
+            type="file"
+            name="book-file"
+            class="form-control"
+        >
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Загрузить
+    </button>
+</form>
+
+<% if (book.fileBook) { %>
+    <a
+        href="/api/books/<%= book.id %>/download"
+        class="btn btn-success mt-3"
+    >
+        Скачать файл
+    </a>
+<% } %>
+
+<a href="/" class="btn btn-secondary mt-3">
+    Назад
+</a>
+
+<%- include('./port/layout-end') %>

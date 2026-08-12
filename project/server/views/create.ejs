@@ -1,0 +1,28 @@
+<%- include('./port/layout-start') %>
+
+<h1>Добавить книгу</h1>
+
+<form method="POST" action="/api/books">
+
+    <div class="form-group">
+        <label>Название</label>
+        <input name="title" class="form-control">
+    </div>
+
+    <div class="form-group">
+        <label>Описание</label>
+        <textarea name="description" class="form-control"></textarea>
+    </div>
+
+    <div class="form-group">
+        <label>Автор</label>
+        <input name="authors" class="form-control">
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Создать
+    </button>
+
+</form>
+
+<%- include('./port/layout-end') %>

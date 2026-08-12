@@ -25,7 +25,7 @@ const storage = {
         "id": "6ee70c76-9b27-478b-99cc-282d814e737f",
         "title": "Одиссея",
         "description": "",
-        "authors": "",
+        "authors": "Гомер",
         "favorite": "",
         "fileCover": "",
         "fileName": "",

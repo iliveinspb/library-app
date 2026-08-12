@@ -1,0 +1,20 @@
+<%- include('./port/layout-start') %>
+
+
+
+<h1>Все книги</h1>
+
+<a href="/create" class="btn btn-primary mb-3">Добавить книгу</a>
+
+<ul>
+    <% books.forEach(book => { %>
+        <li>
+            <a href="/books/<%= book.id %>">
+                <%= book.title %>
+            </a>
+        </li>
+    <% }) %>
+</ul>
+
+
+<%- include('./port/layout-end') %>
