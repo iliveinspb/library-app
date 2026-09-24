@@ -1,19 +1,22 @@
 const express = require('express')
 const router = express.Router()
 const fileMulter = require('../middleware/file')
-const Book = require('../models/book')
+const container = require('../container')
+const BooksRepository = require('../models/books-repository')
 
 const storage = require('../storage')
 
 //получаем весь массив
 router.get('/', async (req, res) => {
-  const books = await Book.find()
+  const repo = container.get(BooksRepository)
+  const books = await repo.getBooks()
   res.json(books)
 })
 
 //получаем книгу по id
 router.get('/:id', async (req, res) => {
-  const book = await Book.findOne({ id: req.params.id })
+  const repo = container.get(BooksRepository)
+  const book = await repo.getBook(req.params.id)
 
   if (!book) {
     return res.status(404).json('404 | не найдено')
@@ -24,27 +27,15 @@ router.get('/:id', async (req, res) => {
 
 //добавление книги
 router.post('/', async (req, res) => {
-  const book = await Book.create(req.body)
+  const repo = container.get(BooksRepository)
+  const book = await repo.createBook(req.body)
   res.status(201).json(book)
 })
 
 //обновление записи полностью
 router.put('/:id', async (req, res) => {
-  const { title, description, authors, favorite, fileCover, fileName } = req.body
-  const book = await Book.findOneAndUpdate(
-    { id: req.params.id },
-    {
-      $set: {
-        title,
-        description,
-        authors,
-        favorite,
-        fileCover,
-        fileName
-      }
-    },
-    { new: true, runValidators: true }
-  )
+  const repo = container.get(BooksRepository)
+  const book = await repo.updateBook(req.params.id, req.body)
 
   if (!book) {
     return res.status(404).json('404 | не найдено')
@@ -76,7 +67,8 @@ router.patch('/:id', (req, res) => {
 
 //удаляем запись по айди
 router.delete('/:id', async (req, res) => {
-  const book = await Book.findOneAndDelete({ id: req.params.id })
+  const repo = container.get(BooksRepository)
+  const book = await repo.deleteBook(req.params.id)
 
   if (!book) {
     return res.status(404).json('404 | не найдено')
