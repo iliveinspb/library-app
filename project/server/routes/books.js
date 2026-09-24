@@ -6,67 +6,52 @@ const Book = require('../models/book')
 const storage = require('../storage')
 
 //получаем весь массив
-router.get('/', (req, res) => {
-  const { books } = storage;
-  res.json(books);
-});
-
-
+router.get('/', async (req, res) => {
+  const books = await Book.find()
+  res.json(books)
+})
 
 //получаем книгу по id
-router.get('/:id', (req, res) => {
-  const { books } = storage;
-  const { id } = req.params;
-  const idx = books.findIndex((el) => el.id === id);
+router.get('/:id', async (req, res) => {
+  const book = await Book.findOne({ id: req.params.id })
 
-  if (idx !== -1) {
-    res.json(books[idx]);
-  } else {
-    res.status(404);
-    res.json('404 | не найдено');
+  if (!book) {
+    return res.status(404).json('404 | не найдено')
   }
-});
 
-
+  res.json(book)
+})
 
 //добавление книги
-router.post('/', (req, res) => {
-  const { books } = storage;
-  const newBook = new Book(req.body);
-  books.push(newBook);
-
-  res.status(201);//статус на создание записи
-  res.json(newBook);
-});
-
-
+router.post('/', async (req, res) => {
+  const book = await Book.create(req.body)
+  res.status(201).json(book)
+})
 
 //обновление записи полностью
-router.put('/:id', (req, res) => {
-  const { books } = storage;
-  const { id } = req.params;
-  
-  const idx = books.findIndex((el) => el.id === id);
+router.put('/:id', async (req, res) => {
+  const { title, description, authors, favorite, fileCover, fileName } = req.body
+  const book = await Book.findOneAndUpdate(
+    { id: req.params.id },
+    {
+      $set: {
+        title,
+        description,
+        authors,
+        favorite,
+        fileCover,
+        fileName
+      }
+    },
+    { new: true, runValidators: true }
+  )
 
-  const { title, description, authors, favorite, fileCover, fileName } = req.body;
-
-  if (idx !== -1) {
-    books[idx] = {
-      ...books[idx],
-      title,
-      description,
-      authors,
-      favorite,
-      fileCover,
-      fileName,
-    };
-
-    res.json(books[idx]);
-  } else {
-    res.status(404);
-    res.json('404 | не найдено');
+  if (!book) {
+    return res.status(404).json('404 | не найдено')
   }
-});
+
+  res.json(book)
+})
 
 //обновление записи частично 
 router.patch('/:id', (req, res) => {
@@ -89,22 +74,16 @@ router.patch('/:id', (req, res) => {
   }
 });
 
-
-
 //удаляем запись по айди
-router.delete('/:id', (req, res) => {
-  const { books } = storage;
-  const { id } = req.params;
-  const idx = books.findIndex((el) => el.id === id);
+router.delete('/:id', async (req, res) => {
+  const book = await Book.findOneAndDelete({ id: req.params.id })
 
-  if (idx !== -1) {
-    books.splice(idx, 1);
-    res.json({ message: 'deleted' });
-  } else {
-    res.status(404);
-    res.json('404 | не найдено');
+  if (!book) {
+    return res.status(404).json('404 | не найдено')
   }
-});
+
+  res.json('ok')
+})
 
 //добавляем файл
 router.post('/:id/upload', 

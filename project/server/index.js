@@ -5,6 +5,7 @@ const logger = require('./middleware/logger')
 const error404 = require('./middleware/err-404')
 const path = require('path')
 const storage = require('./storage')
+const connectToDatabase = require('./db')
 
 
 app.set('views', path.join(__dirname, 'views'))
@@ -68,6 +69,17 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 3000
 
-app.listen(PORT, () => {
-  console.log(`🚀 server running on http://localhost:${PORT}`)
-})
+async function start() {
+  try {
+    await connectToDatabase()
+
+    app.listen(PORT, () => {
+      console.log(`🚀 server running on http://localhost:${PORT}`)
+    })
+  } catch (error) {
+    console.error('Не удалось подключиться к MongoDB:', error.message)
+    process.exit(1)
+  }
+}
+
+start()
