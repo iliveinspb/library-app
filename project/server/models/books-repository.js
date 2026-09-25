@@ -1,4 +1,5 @@
 const Book = require('./book')
+const { decorate, injectable } = require('inversify')
 
 class BooksRepository {
   async getBooks() {
@@ -71,4 +72,5 @@ class BooksRepository {
   }
 }
 
+decorate(injectable(), BooksRepository)
 module.exports = BooksRepository

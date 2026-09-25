@@ -7,6 +7,8 @@ const BooksRepository = require('../models/books-repository')
 //получаем весь массив
 router.get('/', async (req, res) => {
   const repo = container.get(BooksRepository)
+  console.log(repo)
+  console.log(repo instanceof BooksRepository)  
   const books = await repo.getBooks()
   res.json(books)
 })
