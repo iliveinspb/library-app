@@ -29,6 +29,10 @@ const bookSchema = new mongoose.Schema({
   fileName: {
     type: String,
     default: ''
+  },
+  fileBook: {
+    type: String,
+    default: ''
   }
 }, {
   collection: 'books'

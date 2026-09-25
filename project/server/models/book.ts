@@ -6,4 +6,5 @@ export interface Book {
   favorite: string;
   fileCover: string;
   fileName: string;
+  fileBook: string;
 }

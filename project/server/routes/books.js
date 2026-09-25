@@ -4,8 +4,6 @@ const fileMulter = require('../middleware/file')
 const container = require('../container')
 const BooksRepository = require('../models/books-repository')
 
-const storage = require('../storage')
-
 //получаем весь массив
 router.get('/', async (req, res) => {
   const repo = container.get(BooksRepository)
@@ -44,26 +42,17 @@ router.put('/:id', async (req, res) => {
   res.json(book)
 })
 
-//обновление записи частично 
-router.patch('/:id', (req, res) => {
-  const { books } = storage;
-  const { id } = req.params;
-  
-  const idx = books.findIndex((el) => el.id === id);
+//обновление записи частично
+router.patch('/:id', async (req, res) => {
+  const repo = container.get(BooksRepository)
+  const book = await repo.patchBook(req.params.id, req.body)
 
-
-  if (idx !== -1) {
-    books[idx] = {
-      ...books[idx],
-      ...req.body,
-    };
-
-    res.json(books[idx]);
-  } else {
-    res.status(404);
-    res.json('404 | не найдено');
+  if (!book) {
+    return res.status(404).json('404 | не найдено')
   }
-});
+
+  res.json(book)
+})
 
 //удаляем запись по айди
 router.delete('/:id', async (req, res) => {
@@ -78,62 +67,45 @@ router.delete('/:id', async (req, res) => {
 })
 
 //добавляем файл
-router.post('/:id/upload', 
-    fileMulter.single('book-file'),
-
-    (req, res) => {
-        const { books } = storage;
-        const { id } = req.params;
-        
-        
-        if (!req.file) {
-            res.status(400);
-            return res.json('Файл не загружен');
-        } 
-        
-        const {path} = req.file
-
-        const idx = books.findIndex((el) => el.id === id);
-        
-        if (idx !== -1) {
-            books[idx] = {
-            ...books[idx],
-            fileBook: path,
-            };
-
-
-
-        return res.json(books[idx])
-
-        } else {
-            res.status(404);
-            res.json('404 | книга не найдена');
-        }
+router.post('/:id/upload',
+  fileMulter.single('book-file'),
+  async (req, res) => {
+    if (!req.file) {
+      return res.status(400).json('Файл не загружен')
     }
-);
+
+    const repo = container.get(BooksRepository)
+    const book = await repo.patchBook(req.params.id, {
+      fileBook: req.file.path
+    })
+
+    if (!book) {
+      return res.status(404).json('404 | книга не найдена')
+    }
+
+    if (req.get('accept')?.includes('text/html')) {
+      return res.redirect(`/books/${book.id}`)
+    }
+
+    res.json(book)
+  }
+)
 
 //отдаем файл пользователю
-router.get('/:id/download', 
+router.get('/:id/download', async (req, res) => {
+  const repo = container.get(BooksRepository)
+  const book = await repo.getBook(req.params.id)
 
-    (req, res) => {
-        const { books } = storage;
-        const { id } = req.params;
+  if (!book) {
+    return res.status(404).json('404 | книга не найдена')
+  }
 
-        const idx = books.findIndex((el) => el.id === id);
+  if (!book.fileBook) {
+    return res.status(404).json('404 | файл отсутствует')
+  }
 
-        if (idx !== -1) {   
-            if (books[idx].fileBook){
-                res.download(books[idx].fileBook)
-            } else {
-                res.status(404);
-                res.json('404 | файл отсутствует');
-            }
-        } else {
-                res.status(404);
-                res.json('404 | книга не найдена');
-            }
-    }
-);
+  res.download(book.fileBook)
+})
 
 
 module.exports = router;

@@ -14,7 +14,15 @@ class BooksRepository {
   }
 
   async updateBook(id, updatedBook) {
-    const { title, description, authors, favorite, fileCover, fileName } = updatedBook
+    const {
+      title,
+      description,
+      authors,
+      favorite,
+      fileCover,
+      fileName,
+      fileBook
+    } = updatedBook
 
     return Book.findOneAndUpdate(
       { id },
@@ -25,9 +33,35 @@ class BooksRepository {
           authors,
           favorite,
           fileCover,
-          fileName
+          fileName,
+          fileBook
         }
       },
+      { new: true, runValidators: true }
+    )
+  }
+
+  async patchBook(id, updatedBook) {
+    const fields = {}
+    const allowedFields = [
+      'title',
+      'description',
+      'authors',
+      'favorite',
+      'fileCover',
+      'fileName',
+      'fileBook'
+    ]
+
+    allowedFields.forEach((field) => {
+      if (updatedBook[field] !== undefined) {
+        fields[field] = updatedBook[field]
+      }
+    })
+
+    return Book.findOneAndUpdate(
+      { id },
+      { $set: fields },
       { new: true, runValidators: true }
     )
   }
