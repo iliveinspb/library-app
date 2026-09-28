@@ -1,10 +1,10 @@
-const mongoose = require('mongoose')
+import mongoose from 'mongoose'
 
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/library'
 
-async function connectToDatabase() {
+async function connectToDatabase(): Promise<void> {
   await mongoose.connect(MONGODB_URI)
   console.log('Подключение к MongoDB установлено')
 }
 
-module.exports = connectToDatabase
+export default connectToDatabase
